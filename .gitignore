@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# IDE / editores
+.vscode/
+.idea/
+
+# Artefactos entrenados (se regeneran con scripts/)
+*.keras
+*.h5
+model/checkpoints/
+model/tb_logs/
+
+# Base de datos local
+*.db
+*.sqlite3
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Streamlit
+.streamlit/secrets.toml

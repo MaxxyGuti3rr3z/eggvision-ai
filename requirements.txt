@@ -1,0 +1,20 @@
+# EggVision AI - dependencias del proyecto
+# Todo corre en local, sin servicios en la nube.
+
+# Red neuronal para clasificar defectos (MobileNetV2 / transfer learning)
+tensorflow>=2.16,<3.0
+
+# Procesamiento de imágenes (leer fotos, medir el huevo)
+opencv-python>=4.8,<5.0
+
+# Interfaz web para subir la foto y ver el resultado
+streamlit>=1.32
+
+# Manejo de datos y reportes de las clasificaciones
+pandas>=2.0
+
+# Gráficos del panel (Plotly)
+plotly>=5.18
+
+# Leer el archivo de configuración config.yaml
+PyYAML>=6.0

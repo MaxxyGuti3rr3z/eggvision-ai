@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EggVision AI – Clasificación de huevos con una foto</title>
+<meta name="description" content="Prototipo que clasifica huevos en normal, rajado o roto total a partir de una foto. Nació en una empresa avícola.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><ellipse cx=%2250%22 cy=%2256%22 rx=%2230%22 ry=%2237%22 fill=%22%23F6F2E7%22 stroke=%22%231B2320%22 stroke-width=%228%22/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pulp:#D3D7CE; --pulp-d:#B4BAAF; --ink:#1B2320; --shell:#F6F2E7;
+  --yolk:#EFAE16; --moss:#2F5D50; --moss-d:#244A40; --muted:#4D574F;
+  --display:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  --body:"Newsreader",Georgia,"Times New Roman",serif;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--pulp);color:var(--ink);font:400 1.1875rem/1.6 var(--body);-webkit-font-smoothing:antialiased}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--moss);outline-offset:3px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:var(--display);line-height:1.02;letter-spacing:-.02em}
+h1{font-size:clamp(2.9rem,7.2vw,5.6rem);font-weight:800;font-stretch:75%}
+h2{font-size:clamp(2rem,4.4vw,3.2rem);font-weight:800;margin-bottom:20px}
+h3{font-size:1.45rem;font-weight:800;letter-spacing:-.01em;margin-bottom:6px}
+p{max-width:62ch}
+.nav{display:flex;justify-content:space-between;align-items:center;padding:22px 0}
+.brand{font:800 1.25rem var(--display);text-decoration:none;letter-spacing:-.02em}
+.nav a.link{font:500 1rem var(--display);text-decoration:none;border-bottom:2px solid transparent}
+.nav a.link:hover{border-color:var(--ink)}
+.btn{display:inline-block;font:800 1.05rem var(--display);padding:14px 26px;border-radius:999px;text-decoration:none;border:2.5px solid var(--ink);transition:transform .15s,background .15s}
+.btn.main{background:var(--moss);color:var(--shell);border-color:var(--moss)}
+.btn.main:hover{background:var(--moss-d);transform:translateY(-2px)}
+.btn.alt{background:transparent}
+.btn.alt:hover{background:var(--shell)}
+
+/* HERO */
+.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center;padding:34px 0 84px}
+.hero p.lead{font-size:1.4rem;margin:26px 0 32px;color:var(--ink)}
+.cta{display:flex;gap:14px;flex-wrap:wrap}
+.tray{background:var(--pulp-d);border-radius:22px 22px 30px 30px;padding:18px;box-shadow:0 14px 0 -6px #9AA096, 0 30px 40px -20px rgba(27,35,32,.35)}
+.grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.cell{aspect-ratio:1/1.12;background:#A3A99E;border-radius:46% 46% 40% 40%/42% 42% 58% 58%;box-shadow:inset 0 5px 8px rgba(27,35,32,.28);display:grid;place-items:center;padding:0;border:0;cursor:pointer}
+.egg{position:relative;width:70%;aspect-ratio:3/4;background:var(--shell);border-radius:50% 50% 48% 48%/62% 62% 38% 38%;box-shadow:inset -5px -7px 10px rgba(27,35,32,.12),0 2px 3px rgba(27,35,32,.25);transition:all .28s cubic-bezier(.3,1.4,.5,1)}
+.egg.rajado::after{content:"";position:absolute;left:50%;top:10%;width:2.5px;height:58%;background:var(--ink);transform:translateX(-50%) rotate(14deg);border-radius:2px;clip-path:polygon(0 0,100% 12%,20% 38%,100% 62%,0 100%)}
+.egg.roto{width:86%;aspect-ratio:1/.8;border-radius:46% 54% 50% 50%/55% 45% 55% 45%;background:radial-gradient(circle at 50% 52%,var(--yolk) 0 24%,#FBF8EE 25%);transform:rotate(-8deg)}
+.egg.roto::before{content:"";position:absolute;inset:-9% -6% auto auto;width:30%;height:26%;background:var(--shell);border-radius:60% 40% 55% 45%;box-shadow:0 1px 2px rgba(27,35,32,.3);transform:rotate(24deg)}
+.cell:focus-visible{outline-offset:2px}
+.drop{animation:drop .6s cubic-bezier(.3,1.5,.5,1) both;animation-delay:calc(var(--i)*28ms)}
+@keyframes drop{from{transform:translateY(-34px) scale(.8);opacity:0}to{transform:none;opacity:1}}
+.readout{margin-top:22px;font:500 1.05rem var(--display);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.readout b{font-weight:800}
+.note{font-size:.95rem;color:var(--muted);margin-top:8px;max-width:none}
+
+/* SECCIONES */
+.sec{background:var(--shell);padding:96px 0}
+.sec.dark{background:var(--ink);color:var(--shell)}
+.sec.dark p{color:#D7D9CF}
+.story{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px}
+.story p+p{margin-top:16px}
+.kinds{margin-top:56px;display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-top:3px solid var(--ink)}
+.kind{padding:26px 28px 6px 0}
+.kind+.kind{padding-left:28px;border-left:1px solid #C9CCBF}
+.kind p{font-size:1.05rem;color:var(--muted)}
+.swatch{display:block;width:44px;margin-bottom:14px}
+.steps{list-style:none;padding:0;margin-top:44px;display:grid;gap:0}
+.steps li{display:grid;grid-template-columns:90px 1fr;gap:24px;padding:28px 0;border-top:1px solid #4A544E}
+.steps li:last-child{border-bottom:1px solid #4A544E}
+.steps .n{font:800 3.6rem/1 var(--display);color:var(--yolk)}
+.steps p{font-size:1.1rem}
+.status{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;margin-top:44px}
+.status h3{padding-bottom:10px;border-bottom:3px solid var(--ink);margin-bottom:16px}
+.status .ok h3{border-color:var(--moss)}
+.status .sim h3{border-color:var(--yolk)}
+.status ul{padding-left:1.1rem;display:grid;gap:10px;font-size:1.05rem}
+.demo{margin-top:36px;aspect-ratio:16/9;background:var(--ink);border-radius:18px;display:grid;place-items:center;text-align:center;padding:24px}
+.demo p{color:#D7D9CF;margin:0 auto 18px}
+.demo a.btn{border-color:var(--shell);color:var(--shell)}
+.demo a.btn:hover{background:var(--shell);color:var(--ink)}
+footer{background:var(--pulp);padding:44px 0 60px;font-size:1rem;color:var(--muted)}
+footer .wrap{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap}
+footer a{color:var(--ink)}
+
+@media (max-width:860px){
+  .hero,.story,.status{grid-template-columns:1fr}
+  .kinds{grid-template-columns:1fr}
+  .kind+.kind{padding-left:0;border-left:0;border-top:1px solid #C9CCBF;margin-top:14px;padding-top:26px}
+  .steps li{grid-template-columns:56px 1fr;gap:14px}
+  .steps .n{font-size:2.6rem}
+  .sec{padding:68px 0}
+}
+@media (prefers-reduced-motion:reduce){
+  .drop{animation:none}.egg,.btn{transition:none}html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<header class="wrap nav">
+  <a class="brand" href="#">EggVision AI</a>
+  <nav><a class="link" href="#estado" style="margin-right:22px">Estado del proyecto</a><a class="link" data-link="repo" href="#">Código</a></nav>
+</header>
+
+<main>
+<section class="wrap hero" aria-labelledby="t">
+  <div>
+    <h1 id="t">Cada huevo pasa por una mirada. Ahora también por una cámara.</h1>
+    <p class="lead">EggVision AI es un prototipo que clasifica un huevo a partir de una foto: normal, rajado o roto total. Lo pensé mirando cómo trabaja mi papá en una empresa avícola.</p>
+    <div class="cta">
+      <a class="btn main" data-link="app" href="#">Probar la app</a>
+      <a class="btn alt" data-link="repo" href="#">Ver el código</a>
+    </div>
+  </div>
+  <div>
+    <div class="tray"><div class="grid" id="maple" role="group" aria-label="Maple de 30 huevos. Tocá un huevo para cambiar su estado."></div></div>
+    <p class="readout" aria-live="polite"><span>Normales <b id="cN">30</b></span><span>Rajados <b id="cR">0</b></span><span>Rotos totales <b id="cT">0</b></span></p>
+    <p class="note">Ilustración interactiva. Tocá un huevo para cambiarlo. No son resultados del sistema.</p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="story">
+      <h2>Hoy se clasifica a mano, huevo por huevo.</h2>
+      <div>
+        <p>En la empresa donde trabaja mi papá no existe un sistema que lo haga. Una persona revisa cada huevo, separa los rajados, aparta los que se rompieron del todo y decide el tamaño a ojo.</p>
+        <p>Es un trabajo hecho con criterio y experiencia, pero cansa, depende de quién lo haga y no deja registro. Este proyecto busca dos cosas: ayudar a esa mirada y guardar lo que se clasificó.</p>
+      </div>
+    </div>
+    <div class="kinds">
+      <div class="kind">
+        <svg class="swatch" viewBox="0 0 44 54" aria-hidden="true"><ellipse cx="22" cy="30" rx="16" ry="22" fill="#F6F2E7" stroke="#1B2320" stroke-width="3"/></svg>
+        <h3>Normal</h3><p>Huevo entero, sin fisuras. La suciedad o el color del cascarón no cuentan como defecto.</p>
+      </div>
+      <div class="kind">
+        <svg class="swatch" viewBox="0 0 44 54" aria-hidden="true"><ellipse cx="22" cy="30" rx="16" ry="22" fill="#F6F2E7" stroke="#1B2320" stroke-width="3"/><path d="M24 12 L20 24 L27 30 L19 42" fill="none" stroke="#1B2320" stroke-width="2.5" stroke-linejoin="round"/></svg>
+        <h3>Rajado</h3><p>Tiene una fisura visible en el cascarón. Es el defecto más difícil de ver y el que más importa detectar.</p>
+      </div>
+      <div class="kind">
+        <svg class="swatch" viewBox="0 0 44 54" aria-hidden="true"><ellipse cx="22" cy="34" rx="19" ry="14" fill="#FBF8EE" stroke="#1B2320" stroke-width="3"/><circle cx="22" cy="34" r="7" fill="#EFAE16"/></svg>
+        <h3>Roto total</h3><p>El huevo se rompió y se desarmó entero en el maple.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec dark">
+  <div class="wrap">
+    <h2>Cómo funciona</h2>
+    <p>Un huevo por foto, con fondo liso y la cámara siempre en el mismo lugar.</p>
+    <ol class="steps">
+      <li><span class="n">1</span><div><h3>Sacás la foto</h3><p>Desde la cámara o subiendo una imagen, y anotás el lote.</p></div></li>
+      <li><span class="n">2</span><div><h3>El modelo la clasifica</h3><p>Una red neuronal preentrenada, ajustada con fotos de huevos, indica si es normal, rajado o roto total y con qué confianza. Si duda, pide revisión manual.</p></div></li>
+      <li><span class="n">3</span><div><h3>Queda registrado</h3><p>Cada resultado se guarda y el panel muestra conteos, porcentaje de defectos por lote y un reporte descargable.</p></div></li>
+    </ol>
+  </div>
+</section>
+
+<section class="sec" id="estado">
+  <div class="wrap">
+    <h2>Qué funciona y qué todavía no</h2>
+    <p>Es un prototipo hecho para un hackathon. Prefiero decirte dónde está parado antes de que lo preguntes.</p>
+    <div class="status">
+      <div class="ok"><h3>Funciona hoy</h3><ul>
+        <li>Un clasificador entrenado con 29 imágenes, como prueba de concepto.</li>
+        <li>La app: foto, resultado, confianza y registro en base de datos.</li>
+        <li>El panel con conteos, filtros y descarga en CSV.</li>
+      </ul></div>
+      <div class="sim"><h3>Es ilustrativo</h3><ul>
+        <li>Los 300 registros del panel son simulados y están marcados como tales en pantalla.</li>
+        <li>El maple de esta página es un dibujo, no una medición.</li>
+      </ul></div>
+      <div><h3>Falta</h3><ul>
+        <li>Fotos reales de la planta, sobre todo de huevos rajados y rotos.</li>
+        <li>Calibrar el tamaño con una referencia real.</li>
+        <li>Analizar un maple completo en una sola foto.</li>
+        <li>Revisar huevos con luz por debajo para ver fisuras finas.</li>
+      </ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec dark">
+  <div class="wrap">
+    <h2>Mirala funcionando</h2>
+    <div class="demo">
+      <div>
+        <p>Un recorrido de dos minutos: una foto, el resultado y el panel.</p>
+        <a class="btn" data-link="video" href="#">Ver el video</a>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>EggVision AI. Prototipo de hackathon, 2026.</span>
+    <span>Los datos y sus licencias están en el <a data-link="repo" href="#">README del repositorio</a>.</span>
+  </div>
+</footer>
+
+<script>
+/* Cambiá estos tres enlaces por los tuyos */
+const LINKS = {
+  app:   "#",   // URL de la app desplegada
+  repo:  "#",   // URL del repositorio en GitHub
+  video: "#"    // URL del video de la demo
+};
+document.querySelectorAll("[data-link]").forEach(a=>{
+  const u = LINKS[a.dataset.link];
+  if(u && u!=="#"){a.href=u;a.target="_blank";a.rel="noopener"}
+  else a.addEventListener("click",e=>e.preventDefault());
+});
+
+/* Maple interactivo: 5 columnas x 6 filas */
+const maple=document.getElementById("maple");
+const states=["", "rajado", "roto"], names=["normal","rajado","roto total"];
+const initial={7:1,18:2};            /* un rajado y un roto para mostrar la idea */
+const st=Array.from({length:30},(_,i)=>initial[i]||0);
+st.forEach((_,i)=>{
+  const b=document.createElement("button");
+  b.className="cell";b.style.setProperty("--i",i);
+  b.innerHTML='<span class="egg drop"></span>';
+  b.onclick=()=>{st[i]=(st[i]+1)%3;paint(i)};
+  maple.appendChild(b);paint(i,true);
+});
+function paint(i,first){
+  const b=maple.children[i], e=b.firstChild;
+  e.className="egg "+states[st[i]]+(first?" drop":"");
+  b.setAttribute("aria-label","Huevo "+(i+1)+": "+names[st[i]]+". Tocá para cambiar.");
+  document.getElementById("cN").textContent=st.filter(s=>s===0).length;
+  document.getElementById("cR").textContent=st.filter(s=>s===1).length;
+  document.getElementById("cT").textContent=st.filter(s=>s===2).length;
+}
+</script>
+</body>
+</html>

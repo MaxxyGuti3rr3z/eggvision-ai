@@ -1,0 +1,50 @@
+# Configuración general de EggVision AI.
+# Lo leen los scripts y la app con `yaml.safe_load`.
+
+# --- Rutas (relativas a la raíz del proyecto) ---
+rutas:
+  datos: data            # fotos de huevos
+  modelo: model          # modelo entrenado
+  base_datos: data/eggs.db   # historial de clasificaciones (SQLite)
+
+# --- Clasificación de defecto (salida de la red neuronal) ---
+clases_defecto:
+  - normal
+  - rajado
+  - roto_total
+
+# --- Imagen ---
+# MobileNetV2 trabaja con entradas de 224x224 píxeles
+ancho_imagen: 224
+alto_imagen: 224
+
+# --- Tamaño del huevo ---
+# 1) Escala de la cámara: foto de una referencia de tamaño conocido
+#    (una moneda, una regla, ...) sacada con la cámara en la MISMA
+#    posición que para los huevos. medida_mm = tamaño real de la
+#    referencia (se usa su lado mayor). scripts/calibrate.py la mide
+#    y guarda la escala en model/scale.json.
+referencia:
+  archivo: data/referencia.jpg
+  medida_mm: 40
+
+# 2) Categorías: lista editable de rangos en mm. Cada categoría puede
+#    traer rango por largo, por ancho, o por ambos (si trae los dos,
+#    se exigen los dos). Rango [mínimo, máximo): el mínimo cuenta y
+#    el máximo no. Ejemplos de referencia (los reemplazamos por los
+#    rangos reales de la empresa).
+categorias_tamano:
+  - categoria: chico
+    largo_mm: [38, 45]
+  - categoria: mediano
+    largo_mm: [45, 50]
+  - categoria: grande
+    largo_mm: [50, 55]
+  - categoria: extra
+    largo_mm: [55, 62]
+
+# --- Alertas del panel ---
+alertas:
+  # Si el porcentaje de defectos (rajado + roto_total) de un lote
+  # supera este valor, el panel muestra un aviso. Ejemplo: 15 = 15%.
+  umbral_defectos_lote: 15
