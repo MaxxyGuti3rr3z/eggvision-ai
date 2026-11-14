@@ -1,12 +1,17 @@
-# Tema propio de EggVision AI (colores y tipografía de la app).
+# Tema propio de EggVision AI (paleta de la landing: gris pulpa,
+# cáscara, verde musgo y yema).
 
 [theme]
 base = "light"
-primaryColor = "#2563eb"
-backgroundColor = "#f8fafc"
-secondaryBackgroundColor = "#eef2f7"
-textColor = "#0f172a"
-font = "sans serif"
+primaryColor = "#2F5D50"
+backgroundColor = "#D3D7CE"
+secondaryBackgroundColor = "#F6F2E7"
+textColor = "#1B2320"
+font = "serif"
 
 [browser]
 gatherUsageStats = false
+
+[client]
+# "minimal": oculta el botón Deploy y el menú de Streamlit
+toolbarMode = "minimal"

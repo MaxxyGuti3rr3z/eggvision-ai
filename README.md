@@ -52,6 +52,7 @@ python scripts/split_dataset.py
 python scripts/train.py
 
 # 5) (Opcional) 300 registros simulados para el panel
+#    (si data/eggs.db no existe, la app los carga sola al arrancar)
 python scripts/seed_demo.py
 
 # 6) App: tres páginas (Clasificar, Panel, Acerca de)
@@ -60,6 +61,12 @@ streamlit run app/main.py
 
 Si `model/egg_classifier.keras` no existe, el entrenamiento (paso 4) es
 obligatorio: sin modelo la app muestra "modelo no disponible" y no clasifica.
+
+**Deploy en Streamlit Community Cloud:** la app arranca desde un clon limpio
+con `streamlit run app/main.py` (archivo principal `app/main.py`). Si
+`data/eggs.db` no existe, la app la crea con sus tablas y carga los 300
+registros de demo marcados como simulados. Usar Python 3.12 en Advanced
+settings.
 
 Predicción por consola:
 
@@ -89,16 +96,44 @@ python scripts/predict.py data/raw/normal/huevo-normal2.jpeg
 
 - **`normal/`: 11 fotos propias** de huevos normales (una foto por huevo).
 - **`rajado/`: 8 fotos** y **`roto_total/`: 10 fotos** — **18 fotos en total**
-  de datasets públicos, una foto por archivo.
+  de una librería de imágenes, una foto por archivo.
 
-### Origen de las fotos de internet — _TODO_
+**No se usaron imágenes generadas por IA:** todas las fotos del dataset son
+reales (propias o de librería).
 
-_Espacio reservado para completar con los datos de cada dataset:_
+### Inventario de fotos
 
-| Clase       | Dataset | Enlace | Autor/es | Licencia |
-|-------------|---------|--------|----------|----------|
-| `rajado`    | _TODO_  | _TODO_ | _TODO_   | _TODO_   |
-| `roto_total`| _TODO_  | _TODO_ | _TODO_   | _TODO_   |
+| Archivo | Clase | Fuente | Autor | Enlace | Licencia |
+|---------|-------|--------|-------|--------|----------|
+| `data/raw/normal/huevo-normal.jpeg` | `normal` | propia | pendiente | pendiente | pendiente |
+| `data/raw/normal/huevo-normal1.jpeg` | `normal` | propia | pendiente | pendiente | pendiente |
+| `data/raw/normal/huevo-normal2.jpeg` | `normal` | propia | pendiente | pendiente | pendiente |
+| `data/raw/normal/huevo-normal3.jpeg` | `normal` | propia | pendiente | pendiente | pendiente |
+| `data/raw/normal/huevo-normal4.jpeg` | `normal` | propia | pendiente | pendiente | pendiente |
+| `data/raw/normal/huevo-normal5.jpeg` | `normal` | propia | pendiente | pendiente | pendiente |
+| `data/raw/normal/huevo-normal6.jpeg` | `normal` | propia | pendiente | pendiente | pendiente |
+| `data/raw/normal/huevo-normal7.jpeg` | `normal` | propia | pendiente | pendiente | pendiente |
+| `data/raw/normal/huevo-normal8.jpeg` | `normal` | propia | pendiente | pendiente | pendiente |
+| `data/raw/normal/huevo-normal9.jpeg` | `normal` | propia | pendiente | pendiente | pendiente |
+| `data/raw/normal/huevo-normal10.jpg` | `normal` | propia | pendiente | pendiente | pendiente |
+| `data/raw/rajado/huevo-rajado1.jpg` | `rajado` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/rajado/huevo-rajado2.jpg` | `rajado` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/rajado/huevo-rajado3.jpg` | `rajado` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/rajado/huevo-rajado4.jpg` | `rajado` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/rajado/huevo-rajado5.jpg` | `rajado` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/rajado/huevo-rajado6.jpg` | `rajado` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/rajado/huevo-rajado7.jpg` | `rajado` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/rajado/huevo-rajado8.jpg` | `rajado` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/roto_total/huevo-roto1.jpg` | `roto_total` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/roto_total/huevo-roto2.jpg` | `roto_total` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/roto_total/huevo-roto3.jpg` | `roto_total` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/roto_total/huevo-roto4.jpg` | `roto_total` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/roto_total/huevo-roto5.jpg` | `roto_total` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/roto_total/huevo-roto6.jpg` | `roto_total` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/roto_total/huevo-roto7.jpg` | `roto_total` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/roto_total/huevo-roto8.jpg` | `roto_total` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/roto_total/huevo-roto9.jpg` | `roto_total` | Libreria | pendiente | pendiente | Gratuita |
+| `data/raw/roto_total/huevo-roto10.jpg` | `roto_total` | Libreria | pendiente | pendiente | Gratuita |
 
 ### Registros del panel
 
@@ -206,7 +241,13 @@ como una medición estable del modelo.
 
 - Todo corre en local, sin internet una vez instaladas las dependencias.
 - El código está comentado en español para poder explicarlo al jurado.
-- `requirements.txt` **probado en un entorno virtual nuevo** (Python 3.13.0):
-  `pip install -r requirements.txt` instala todo (tensorflow 2.21.0,
-  opencv-python 4.14.0, streamlit 1.67.0, pandas 3.1.1, plotly 7.1.0,
-  PyYAML 6.0.3), `pip check` no encuentra conflictos y los imports funcionan.
+- `requirements.txt` **con versiones fijas**, probado en un entorno virtual
+  nuevo (Python 3.13.0): `pip install -r requirements.txt` instala todo
+  (tensorflow-cpu 2.21.0, opencv-python 4.14.0.94, streamlit 1.67.0,
+  pandas 3.1.1, plotly 7.1.0, PyYAML 6.0.3), `pip check` no encuentra
+  conflictos y los imports funcionan.
+- **Python requerido: 3.10 a 3.13** (lo que soporta TensorFlow 2.21).
+  En Streamlit Community Cloud: elegir **3.12** en Advanced settings.
+
+
+

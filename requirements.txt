@@ -1,20 +1,21 @@
-# EggVision AI - dependencias del proyecto
-# Todo corre en local, sin servicios en la nube.
+# EggVision AI - dependencias del proyecto (versiones fijas)
+# Todo corre en local o en Streamlit Community Cloud, sin servicios en la nube.
 
 # Red neuronal para clasificar defectos (MobileNetV2 / transfer learning)
-tensorflow>=2.16,<3.0
+# tensorflow-cpu: misma API que tensorflow, sin GPU (más liviano para Cloud)
+tensorflow-cpu==2.21.0
 
 # Procesamiento de imágenes (leer fotos, medir el huevo)
-opencv-python>=4.8,<5.0
+opencv-python==4.14.0.94
 
 # Interfaz web para subir la foto y ver el resultado
-streamlit>=1.32
+streamlit==1.67.0
 
 # Manejo de datos y reportes de las clasificaciones
-pandas>=2.0
+pandas==3.1.1
 
 # Gráficos del panel (Plotly)
-plotly>=5.18
+plotly==7.1.0
 
 # Leer el archivo de configuración config.yaml
-PyYAML>=6.0
+PyYAML==6.0.3

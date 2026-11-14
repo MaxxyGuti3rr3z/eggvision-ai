@@ -1,0 +1,4 @@
+# Dependencias de sistema para Streamlit Community Cloud (Linux).
+# opencv-python necesita libGL y glib para importar cv2.
+libgl1
+libglib2.0-0

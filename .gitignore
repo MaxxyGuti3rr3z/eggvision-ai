@@ -15,6 +15,7 @@ env/
 
 # Artefactos entrenados (se regeneran con scripts/)
 *.keras
+!model/egg_classifier.keras
 *.h5
 model/checkpoints/
 model/tb_logs/

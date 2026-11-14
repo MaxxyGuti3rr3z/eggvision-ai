@@ -69,7 +69,33 @@ def mostrar_tarjeta(resultado):
     )
 
     if resultado["confianza"] < CONFIANZA_MINIMA:
-        st.error("Revisar manualmente")
+        st.markdown(
+            '<div class="aviso-revision">Revisar manualmente — confianza '
+            f"{confianza:.0f}% (mínimo {CONFIANZA_MINIMA:.0%})</div>",
+            unsafe_allow_html=True,
+        )
+
+
+def mostrar_tarjeta_vacia():
+    """Estado inicial de la tarjeta: huevo en SVG y texto de espera."""
+    st.markdown(
+        """
+        <div class="tarjeta tarjeta-vacia">
+            <svg class="huevo-svg" width="88" height="112" viewBox="0 0 88 112"
+                 fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M44 6C61 6 78 34 78 62C78 88 63 106 44 106
+                         C25 106 10 88 10 62C10 34 27 6 44 6Z"
+                      fill="#EDE8DA" stroke="rgba(27,35,32,0.45)"
+                      stroke-width="3"/>
+                <path d="M28 44C30 34 36 26 44 22"
+                      stroke="rgba(255,255,255,0.8)" stroke-width="6"
+                      stroke-linecap="round"/>
+            </svg>
+            <div class="tarjeta-vacia-texto">Acá aparece el resultado</div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
 
 def mostrar_historial():
@@ -102,37 +128,43 @@ def run():
         )
         return
 
-    # 1) El lote se ingresa ANTES de clasificar
-    lote = st.text_input("Lote")
+    # Formulario a la izquierda / tarjeta de resultado a la derecha
+    col_form, col_result = st.columns([1, 1], gap="large")
 
-    # 2) La foto: archivo subido o cámara
-    fuente = st.radio("Foto", ["Subir archivo", "Cámara"], horizontal=True)
-    if fuente == "Subir archivo":
-        archivo = st.file_uploader(
-            "Elegí una foto del huevo", type=["jpg", "jpeg", "png"],
-        )
-    else:
-        archivo = st.camera_input("Tomá una foto del huevo")
+    with col_form:
+        # 1) El lote se ingresa ANTES de clasificar
+        lote = st.text_input("Lote", placeholder="Ej.: LOTE-12")
 
-    # 3) Clasificar
-    if st.button("Clasificar"):
-        if not lote.strip():
-            st.warning("Ingresá el lote antes de clasificar.")
-        elif archivo is None:
-            st.warning("Subí una foto o tomá una con la cámara.")
+        # 2) La foto: archivo subido o cámara
+        fuente = st.radio("Foto", ["Subir archivo", "Cámara"], horizontal=True)
+        if fuente == "Subir archivo":
+            archivo = st.file_uploader(
+                "Elegí una foto del huevo", type=["jpg", "jpeg", "png"],
+            )
         else:
-            try:
-                st.session_state["resultado"] = procesar(
-                    lote.strip(), archivo,
-                )
-            except ValueError as error:
-                st.warning(str(error))
+            archivo = st.camera_input("Tomá una foto del huevo")
 
-    # 4) Resultado (persiste entre interacciones)
-    resultado = st.session_state.get("resultado")
-    if resultado is not None:
-        st.subheader("Resultado")
-        mostrar_tarjeta(resultado)
+        # 3) Clasificar
+        if st.button("Clasificar", type="primary"):
+            if not lote.strip():
+                st.warning("Ingresá el lote antes de clasificar.")
+            elif archivo is None:
+                st.warning("Subí una foto o tomá una con la cámara.")
+            else:
+                try:
+                    st.session_state["resultado"] = procesar(
+                        lote.strip(), archivo,
+                    )
+                except ValueError as error:
+                    st.warning(str(error))
+
+    # 4) Resultado a la derecha (vacío al inicio, se llena al clasificar)
+    with col_result:
+        resultado = st.session_state.get("resultado")
+        if resultado is None:
+            mostrar_tarjeta_vacia()
+        else:
+            mostrar_tarjeta(resultado)
 
     # 5) Historial
     mostrar_historial()
